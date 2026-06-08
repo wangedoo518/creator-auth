@@ -61,14 +61,14 @@ Current seeded tenant records:
     "profile": "lufei-creator-profile",
     "displayName": "路飞设计沉思录",
     "gatewayUrl": "https://claudewiki.cn/hermes",
-    "authMode": "token"
+    "authMode": "oauth"
   },
   {
     "id": "career-coach",
     "profile": "career-coach-copilot",
     "displayName": "求职咨询助手",
     "gatewayUrl": "https://claudewiki.cn/hermes",
-    "authMode": "token"
+    "authMode": "oauth"
   }
 ]
 ```
@@ -77,22 +77,34 @@ Both tenants currently share the `claudewiki.cn` Hermes gateway domain. If the
 gateway later exposes tenant-specific paths or subdomains, update the two tenant
 records through the admin API.
 
-## Workspace + Token Desktop Flow
+## Workspace + Password Sign-In Desktop Flow
 
 Hermes Creator Desktop now loads `GET /workspaces`, shows a workspace picker,
-prompts once for the selected workspace's Hermes dashboard token, and saves the
-workspace as a per-profile remote override with `authMode: "token"`. WeChat
-login, users, memberships, and gateway tickets are not part of the MVP path.
-Workspace tokens are distributed out of band and are not returned by
-`GET /workspaces`.
+saves the workspace as a per-profile remote override with `authMode: "oauth"`,
+then opens the official Hermes gateway sign-in window. For the MVP, each remote
+Hermes dashboard uses the bundled Basic Auth provider, so the window renders a
+username/password form. WeChat login, users, memberships, and gateway tickets
+are not part of the MVP path. Dashboard credentials and auth secrets are stored
+only on the remote Hermes gateway, not in creator-auth.
 
 ## Pending Production Inputs
 
 - DNS A records for `yongshengxingda.com` and `www.yongshengxingda.com` pointing
   to `47.114.95.173`.
 - HTTPS certificate and reverse proxy for `https://yongshengxingda.com`.
-- Hermes dashboard gateway at `https://claudewiki.cn/hermes` must accept token
-  authenticated Desktop REST and WebSocket traffic for the configured workspaces.
+- Hermes dashboard gateway at `https://claudewiki.cn/hermes` must run with
+  `HERMES_DASHBOARD_BASIC_AUTH_USERNAME`,
+  `HERMES_DASHBOARD_BASIC_AUTH_PASSWORD_HASH` or `_PASSWORD`, and
+  `HERMES_DASHBOARD_BASIC_AUTH_SECRET`, and must expose the official `/login`,
+  REST, and WebSocket ticket flow over HTTPS.
+
+As of 2026-06-08, `https://claudewiki.cn/hermes/api/status` and
+`https://claudewiki.cn/hermes/login` return the existing Sub2API web app, not
+Hermes dashboard responses. `claudewiki.cn` resolves to `154.29.156.153`, while
+the creator-auth ECS host is `47.114.95.173`; `yongshengxingda.com` has no DNS A
+record visible from this environment. End-to-end Desktop sign-in cannot be
+considered complete until the Hermes dashboard is routed behind the configured
+gateway URL.
 
 ## Verification Commands
 

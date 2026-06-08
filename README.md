@@ -59,9 +59,23 @@ CentOS 7.9 target:
 - Service: `creator-auth.service`
 
 Use [deploy/centos7-runbook.md](deploy/centos7-runbook.md).
+Use [deploy/hermes-dashboard-basic-auth.md](deploy/hermes-dashboard-basic-auth.md)
+for the remote Hermes gateway side of the password sign-in MVP.
 Use [deploy/wechat-open-platform-setup.md](deploy/wechat-open-platform-setup.md)
 only if the project re-enables WeChat login later.
 
-The workspace manifest exposes `authMode: "token"` and gateway URLs only. It
-must not expose Hermes dashboard tokens; Creator Desktop asks the creator for
-the workspace token on first bind and stores it locally.
+The workspace manifest exposes `authMode: "oauth"` and gateway URLs only.
+Creator Desktop uses that mode to open the official Hermes gateway sign-in
+window. For the MVP, each remote Hermes dashboard should be configured with the
+bundled Basic Auth provider:
+
+```bash
+HERMES_DASHBOARD_BASIC_AUTH_USERNAME='creator-name'
+HERMES_DASHBOARD_BASIC_AUTH_PASSWORD='change-me'
+HERMES_DASHBOARD_BASIC_AUTH_SECRET='32-plus-random-bytes'
+HERMES_DASHBOARD_PUBLIC_URL='https://claudewiki.cn/hermes'
+```
+
+Use `HERMES_DASHBOARD_BASIC_AUTH_PASSWORD_HASH` instead of plaintext passwords
+for production. Dashboard usernames, passwords, hashes, and secrets must not be
+stored in creator-auth or returned by `GET /workspaces`.

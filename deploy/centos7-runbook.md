@@ -66,7 +66,7 @@ WECHAT_REDIRECT_URI=https://yongshengxingda.com/auth/wechat/callback
 CREATOR_AUTH_ALLOW_DEV_LOGIN=0
 ```
 
-For the workspace picker + token MVP, `WECHAT_APP_ID`,
+For the workspace picker + password sign-in MVP, `WECHAT_APP_ID`,
 `WECHAT_APP_SECRET`, and `WECHAT_REDIRECT_URI` may remain empty.
 
 Generate secrets locally:
@@ -190,9 +190,17 @@ The public Desktop manifest is available without login:
 curl -fsS http://127.0.0.1:8088/workspaces
 ```
 
-The manifest should show `authMode: "token"` for each workspace. Do not put
-Hermes dashboard tokens in creator-auth or in the public manifest; distribute
-each workspace token to its creator out of band.
+The manifest should show `authMode: "oauth"` for each workspace. Do not put
+Hermes dashboard usernames, password hashes, plaintext passwords, or Basic Auth
+secrets in creator-auth or in the public manifest. Configure those values on
+each remote Hermes dashboard:
+
+```bash
+HERMES_DASHBOARD_BASIC_AUTH_USERNAME='creator-name'
+HERMES_DASHBOARD_BASIC_AUTH_PASSWORD_HASH='scrypt$...'
+HERMES_DASHBOARD_BASIC_AUTH_SECRET='32-plus-random-bytes'
+HERMES_DASHBOARD_PUBLIC_URL='https://claudewiki.cn/hermes'
+```
 
 ## 8. Smoke Tests
 

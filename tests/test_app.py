@@ -57,7 +57,7 @@ class CreatorAuthAppTest(unittest.TestCase):
                 "profile": "lufei-creator-profile",
                 "displayName": "路飞设计沉思录",
                 "gatewayUrl": "https://claudewiki.cn/hermes",
-                "authMode": "token",
+                "authMode": "oauth",
             },
         )
 
@@ -68,9 +68,9 @@ class CreatorAuthAppTest(unittest.TestCase):
         self.assertEqual(payload["workspaces"][0]["id"], "lufei")
         self.assertEqual(payload["workspaces"][0]["profile"], "lufei-creator-profile")
         self.assertEqual(payload["workspaces"][0]["gatewayUrl"], "https://claudewiki.cn/hermes")
-        self.assertEqual(payload["workspaces"][0]["authMode"], "token")
+        self.assertEqual(payload["workspaces"][0]["authMode"], "oauth")
 
-    def test_public_workspaces_default_to_token_auth(self):
+    def test_public_workspaces_default_to_oauth_auth(self):
         admin_headers = {"x-admin-token": "admin-token"}
         self.request(
             "POST",
@@ -87,7 +87,7 @@ class CreatorAuthAppTest(unittest.TestCase):
         status, _, payload = self.request("GET", "/workspaces")
 
         self.assertEqual(status, 200)
-        self.assertEqual(payload["workspaces"][0]["authMode"], "token")
+        self.assertEqual(payload["workspaces"][0]["authMode"], "oauth")
 
     def test_admin_tenant_user_membership_and_desktop_session_flow(self):
         admin_headers = {"x-admin-token": "admin-token"}
