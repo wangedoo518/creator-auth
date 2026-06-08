@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS tenants (
   profile TEXT NOT NULL,
   display_name TEXT NOT NULL,
   gateway_url TEXT NOT NULL,
-  auth_mode TEXT NOT NULL DEFAULT 'ticket',
+  auth_mode TEXT NOT NULL DEFAULT 'token',
   features_json TEXT NOT NULL DEFAULT '{}',
   status TEXT NOT NULL DEFAULT 'active',
   created_at INTEGER NOT NULL,

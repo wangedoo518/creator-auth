@@ -7,7 +7,7 @@ This service is intentionally small and dependency-light for the initial CentOS
 
 ## What It Does
 
-- Serves a public no-login workspace manifest at `GET /workspaces`.
+- Serves a public workspace manifest at `GET /workspaces`.
 - Stores workspace/tenant records with profile names and Hermes gateway URLs.
 - Lets Hermes Creator Desktop load a workspace picker before booting a gateway.
 - Keeps the previous WeChat/session/admin APIs available for a future auth phase.
@@ -33,7 +33,7 @@ curl http://127.0.0.1:8088/workspaces
 
 See [.env.example](.env.example).
 
-Required for production no-login workspace mode:
+Required for production workspace directory mode:
 
 - `CREATOR_AUTH_SECRET`
 - `CREATOR_AUTH_ADMIN_TOKEN`
@@ -61,3 +61,7 @@ CentOS 7.9 target:
 Use [deploy/centos7-runbook.md](deploy/centos7-runbook.md).
 Use [deploy/wechat-open-platform-setup.md](deploy/wechat-open-platform-setup.md)
 only if the project re-enables WeChat login later.
+
+The workspace manifest exposes `authMode: "token"` and gateway URLs only. It
+must not expose Hermes dashboard tokens; Creator Desktop asks the creator for
+the workspace token on first bind and stores it locally.

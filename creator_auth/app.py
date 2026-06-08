@@ -283,7 +283,7 @@ class CreatorAuthApp:
                     "profile": row["profile"],
                     "displayName": row["display_name"],
                     "gatewayUrl": row["gateway_url"],
-                    "authMode": row["auth_mode"] or "none",
+                    "authMode": row["auth_mode"] or "token",
                 }
                 for row in rows
             ],
@@ -381,7 +381,7 @@ class CreatorAuthApp:
                     profile,
                     display_name,
                     gateway_url,
-                    str(data.get("authMode") or data.get("auth_mode") or "ticket"),
+                    str(data.get("authMode") or data.get("auth_mode") or "token"),
                     json.dumps(features, ensure_ascii=False, sort_keys=True),
                     str(data.get("status") or "active"),
                     ts,
@@ -396,7 +396,7 @@ class CreatorAuthApp:
                     profile,
                     display_name,
                     gateway_url,
-                    str(data.get("authMode") or data.get("auth_mode") or "ticket"),
+                    str(data.get("authMode") or data.get("auth_mode") or "token"),
                     json.dumps(features, ensure_ascii=False, sort_keys=True),
                     str(data.get("status") or "active"),
                     ts,

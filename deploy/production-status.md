@@ -61,14 +61,14 @@ Current seeded tenant records:
     "profile": "lufei-creator-profile",
     "displayName": "路飞设计沉思录",
     "gatewayUrl": "https://claudewiki.cn/hermes",
-    "authMode": "none"
+    "authMode": "token"
   },
   {
     "id": "career-coach",
     "profile": "career-coach-copilot",
     "displayName": "求职咨询助手",
     "gatewayUrl": "https://claudewiki.cn/hermes",
-    "authMode": "none"
+    "authMode": "token"
   }
 ]
 ```
@@ -77,20 +77,22 @@ Both tenants currently share the `claudewiki.cn` Hermes gateway domain. If the
 gateway later exposes tenant-specific paths or subdomains, update the two tenant
 records through the admin API.
 
-## No-login Desktop Flow
+## Workspace + Token Desktop Flow
 
 Hermes Creator Desktop now loads `GET /workspaces`, shows a workspace picker,
-and saves the selected workspace as a per-profile remote override with
-`authMode: "none"`. WeChat login, users, memberships, and gateway tickets are
-not part of the MVP path.
+prompts once for the selected workspace's Hermes dashboard token, and saves the
+workspace as a per-profile remote override with `authMode: "token"`. WeChat
+login, users, memberships, and gateway tickets are not part of the MVP path.
+Workspace tokens are distributed out of band and are not returned by
+`GET /workspaces`.
 
 ## Pending Production Inputs
 
 - DNS A records for `yongshengxingda.com` and `www.yongshengxingda.com` pointing
   to `47.114.95.173`.
 - HTTPS certificate and reverse proxy for `https://yongshengxingda.com`.
-- Hermes gateway at `https://claudewiki.cn/hermes` must accept no-login Desktop
-  REST and WebSocket traffic for the configured workspaces.
+- Hermes dashboard gateway at `https://claudewiki.cn/hermes` must accept token
+  authenticated Desktop REST and WebSocket traffic for the configured workspaces.
 
 ## Verification Commands
 
