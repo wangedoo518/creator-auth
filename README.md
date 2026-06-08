@@ -49,9 +49,12 @@ For local smoke tests you can set `CREATOR_AUTH_ALLOW_DEV_LOGIN=1` and use
 CentOS 7.9 target:
 
 - Host: `47.114.95.173`
+- Public URL: `https://yongshengxingda.com`
+- WeChat callback: `https://yongshengxingda.com/auth/wechat/callback`
 - Recommended install dir: `/opt/creator-auth`
 - Recommended data dir: `/var/lib/creator-auth`
 - Service: `creator-auth.service`
 
 Use [deploy/centos7-runbook.md](deploy/centos7-runbook.md).
-
+Use [deploy/wechat-open-platform-setup.md](deploy/wechat-open-platform-setup.md)
+for the WeChat Open Platform website app setup.

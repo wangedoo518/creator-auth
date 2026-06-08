@@ -11,14 +11,7 @@ Target server:
 
 ## 1. SSH Access
 
-The current local machine does not have working SSH access yet:
-
-```text
-root@47.114.95.173: Permission denied (publickey,gssapi-keyex,gssapi-with-mic,password).
-```
-
-Add the operator public key in the Alibaba Cloud console or provide an SSH user/key,
-then verify:
+SSH access is enabled for the current operator key. Verify with:
 
 ```bash
 ssh root@47.114.95.173 'hostname; whoami; cat /etc/centos-release'
@@ -63,13 +56,13 @@ Create `/etc/creator-auth/creator-auth.env`:
 ```dotenv
 CREATOR_AUTH_HOST=127.0.0.1
 CREATOR_AUTH_PORT=8088
-CREATOR_AUTH_PUBLIC_BASE_URL=https://auth.example.com
+CREATOR_AUTH_PUBLIC_BASE_URL=https://yongshengxingda.com
 CREATOR_AUTH_DB=/var/lib/creator-auth/creator-auth.db
 CREATOR_AUTH_SECRET=REPLACE_WITH_RANDOM_SECRET
 CREATOR_AUTH_ADMIN_TOKEN=REPLACE_WITH_RANDOM_ADMIN_TOKEN
 WECHAT_APP_ID=REPLACE_WITH_WECHAT_OPEN_PLATFORM_APP_ID
 WECHAT_APP_SECRET=REPLACE_WITH_WECHAT_OPEN_PLATFORM_APP_SECRET
-WECHAT_REDIRECT_URI=https://auth.example.com/auth/wechat/callback
+WECHAT_REDIRECT_URI=https://yongshengxingda.com/auth/wechat/callback
 CREATOR_AUTH_ALLOW_DEV_LOGIN=0
 ```
 
@@ -113,26 +106,61 @@ EOF
 Recommended public URL:
 
 ```text
-https://auth.example.com
+https://yongshengxingda.com
 ```
 
-Minimal Nginx location:
+Before issuing the certificate, point `yongshengxingda.com` and
+`www.yongshengxingda.com` A records to `47.114.95.173`, then open ports 80 and
+443 in the ECS security group.
+
+On the current ECS, port 80 is already served by the existing Docker container
+`zrimg-web-1`. Do not start system Nginx on 80/443 until the edge routing
+ownership is decided. Use one of these approaches:
+
+- Add creator-auth API routes to the existing `zrimg-web` Nginx edge.
+- Move `zrimg-web` to another public port and let system Nginx own 80/443.
+- Put creator-auth on a separate ECS, load balancer, or auth subdomain.
+
+If reusing the existing Docker edge, add this to the `web` service in
+`/opt/zrimg/deploy/docker-compose.yml`:
+
+```yaml
+extra_hosts:
+  - "host.docker.internal:host-gateway"
+```
+
+Then add these locations before the SPA fallback in the `zrimg-web` Nginx
+template:
 
 ```nginx
-server {
-  listen 443 ssl http2;
-  server_name auth.example.com;
+location = /health { proxy_pass http://host.docker.internal:8088; }
+location /auth/ { proxy_pass http://host.docker.internal:8088; }
+location = /me { proxy_pass http://host.docker.internal:8088; }
+location /me/ { proxy_pass http://host.docker.internal:8088; }
+location /tenants/ { proxy_pass http://host.docker.internal:8088; }
+location /admin/ { proxy_pass http://host.docker.internal:8088; }
+```
 
-  ssl_certificate /etc/letsencrypt/live/auth.example.com/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/auth.example.com/privkey.pem;
+Install Nginx and Certbot, then start with the HTTP bootstrap config:
 
-  location / {
-    proxy_pass http://127.0.0.1:8088;
-    proxy_set_header Host $host;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-  }
-}
+```bash
+yum install -y epel-release
+yum install -y nginx certbot
+mkdir -p /var/www/certbot /etc/nginx/conf.d
+cp /opt/creator-auth/deploy/nginx/creator-auth-http-bootstrap.conf /etc/nginx/conf.d/creator-auth.conf
+nginx -t && systemctl enable --now nginx
+```
+
+After DNS points to `47.114.95.173`, request the certificate and switch to the
+final HTTPS reverse proxy config:
+
+```bash
+certbot certonly --webroot \
+  -w /var/www/certbot \
+  -d yongshengxingda.com \
+  -d www.yongshengxingda.com
+cp /opt/creator-auth/deploy/nginx/creator-auth.conf /etc/nginx/conf.d/creator-auth.conf
+nginx -t && systemctl reload nginx
 ```
 
 ## 7. Seed Tenants
@@ -145,20 +173,21 @@ export CREATOR_AUTH_ADMIN_TOKEN=REPLACE_WITH_RANDOM_ADMIN_TOKEN
 python3 scripts/seed_tenants.py
 ```
 
-Before production, replace placeholder gateway URLs:
+Default production gateway URLs:
 
-- `https://lufei.example.com/hermes`
-- `https://career.example.com/hermes`
+- `https://claudewiki.cn/hermes`
+- `https://claudewiki.cn/hermes`
 
-with the real gateway domains.
+If the two tenants later move to separate gateway paths or subdomains, update
+their tenant records with the admin API and rerun the Desktop smoke tests.
 
 ## 8. Smoke Tests
 
 ```bash
-curl -fsS https://auth.example.com/health
+curl -fsS https://yongshengxingda.com/health
 
 curl -fsS -H "X-Admin-Token: $CREATOR_AUTH_ADMIN_TOKEN" \
-  https://auth.example.com/admin/tenants
+  https://yongshengxingda.com/admin/tenants
 ```
 
 For local development only:

@@ -56,7 +56,7 @@ class CreatorAuthAppTest(unittest.TestCase):
                 "id": "career-coach",
                 "profile": "career-coach-copilot",
                 "displayName": "求职咨询助手",
-                "gatewayUrl": "https://career.example.com/hermes",
+                "gatewayUrl": "https://claudewiki.cn/hermes",
                 "features": {"chat": True, "settings": False},
             },
         )
@@ -115,7 +115,7 @@ class CreatorAuthAppTest(unittest.TestCase):
                 "id": "lufei",
                 "profile": "lufei-creator-profile",
                 "displayName": "路飞设计沉思录",
-                "gatewayUrl": "https://lufei.example.com/hermes",
+                "gatewayUrl": "https://claudewiki.cn/hermes",
             },
         )
         _, _, login = self.request("POST", "/dev/login", body={"unionId": "other", "openId": "other"})
