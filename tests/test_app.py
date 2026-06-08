@@ -46,6 +46,30 @@ class CreatorAuthAppTest(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertEqual(payload["service"], "creator-auth")
 
+    def test_public_workspaces_do_not_require_login(self):
+        admin_headers = {"x-admin-token": "admin-token"}
+        self.request(
+            "POST",
+            "/admin/tenants",
+            admin_headers,
+            {
+                "id": "lufei",
+                "profile": "lufei-creator-profile",
+                "displayName": "路飞设计沉思录",
+                "gatewayUrl": "https://claudewiki.cn/hermes",
+                "authMode": "none",
+            },
+        )
+
+        status, _, payload = self.request("GET", "/workspaces")
+
+        self.assertEqual(status, 200)
+        self.assertEqual(payload["version"], 1)
+        self.assertEqual(payload["workspaces"][0]["id"], "lufei")
+        self.assertEqual(payload["workspaces"][0]["profile"], "lufei-creator-profile")
+        self.assertEqual(payload["workspaces"][0]["gatewayUrl"], "https://claudewiki.cn/hermes")
+        self.assertEqual(payload["workspaces"][0]["authMode"], "none")
+
     def test_admin_tenant_user_membership_and_desktop_session_flow(self):
         admin_headers = {"x-admin-token": "admin-token"}
         status, _, tenant = self.request(

@@ -66,6 +66,9 @@ WECHAT_REDIRECT_URI=https://yongshengxingda.com/auth/wechat/callback
 CREATOR_AUTH_ALLOW_DEV_LOGIN=0
 ```
 
+For the no-login workspace picker MVP, `WECHAT_APP_ID`,
+`WECHAT_APP_SECRET`, and `WECHAT_REDIRECT_URI` may remain empty.
+
 Generate secrets locally:
 
 ```bash
@@ -181,10 +184,17 @@ Default production gateway URLs:
 If the two tenants later move to separate gateway paths or subdomains, update
 their tenant records with the admin API and rerun the Desktop smoke tests.
 
+The public Desktop manifest is available without login:
+
+```bash
+curl -fsS http://127.0.0.1:8088/workspaces
+```
+
 ## 8. Smoke Tests
 
 ```bash
 curl -fsS https://yongshengxingda.com/health
+curl -fsS https://yongshengxingda.com/workspaces
 
 curl -fsS -H "X-Admin-Token: $CREATOR_AUTH_ADMIN_TOKEN" \
   https://yongshengxingda.com/admin/tenants

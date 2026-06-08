@@ -21,8 +21,9 @@ Last updated: 2026-06-08
 - SQLite DB: `/var/lib/creator-auth/creator-auth.db`
 - Listen address: `0.0.0.0:8088`
 - Public health URL: `http://47.114.95.173:8088/health`
+- Public workspace URL: `http://47.114.95.173:8088/workspaces`
 - Planned HTTPS URL: `https://yongshengxingda.com`
-- WeChat callback URL: `https://yongshengxingda.com/auth/wechat/callback`
+- Planned HTTPS workspace URL: `https://yongshengxingda.com/workspaces`
 
 `yongshengxingda.com` and `www.yongshengxingda.com` did not return A records
 when checked on 2026-06-08, so HTTPS certificate issuance is blocked until DNS
@@ -59,13 +60,15 @@ Current seeded tenant records:
     "id": "lufei",
     "profile": "lufei-creator-profile",
     "displayName": "路飞设计沉思录",
-    "gatewayUrl": "https://claudewiki.cn/hermes"
+    "gatewayUrl": "https://claudewiki.cn/hermes",
+    "authMode": "none"
   },
   {
     "id": "career-coach",
     "profile": "career-coach-copilot",
     "displayName": "求职咨询助手",
-    "gatewayUrl": "https://claudewiki.cn/hermes"
+    "gatewayUrl": "https://claudewiki.cn/hermes",
+    "authMode": "none"
   }
 ]
 ```
@@ -74,28 +77,26 @@ Both tenants currently share the `claudewiki.cn` Hermes gateway domain. If the
 gateway later exposes tenant-specific paths or subdomains, update the two tenant
 records through the admin API.
 
-## Bootstrap User
+## No-login Desktop Flow
 
-A placeholder bootstrap owner user was created and granted `owner` on both
-seeded tenants. Replace this with real WeChat-bound users when WeChat Open
-Platform credentials are available.
+Hermes Creator Desktop now loads `GET /workspaces`, shows a workspace picker,
+and saves the selected workspace as a per-profile remote override with
+`authMode: "none"`. WeChat login, users, memberships, and gateway tickets are
+not part of the MVP path.
 
 ## Pending Production Inputs
 
 - DNS A records for `yongshengxingda.com` and `www.yongshengxingda.com` pointing
   to `47.114.95.173`.
 - HTTPS certificate and reverse proxy for `https://yongshengxingda.com`.
-- WeChat Open Platform website app:
-  - `WECHAT_APP_ID`
-  - `WECHAT_APP_SECRET`
-  - registered callback URL: `https://yongshengxingda.com/auth/wechat/callback`
-  - setup guide: `deploy/wechat-open-platform-setup.md`
-- Hermes gateway support for validating creator-auth gateway tickets.
+- Hermes gateway at `https://claudewiki.cn/hermes` must accept no-login Desktop
+  REST and WebSocket traffic for the configured workspaces.
 
 ## Verification Commands
 
 ```bash
 curl -fsS http://47.114.95.173:8088/health
+curl -fsS http://47.114.95.173:8088/workspaces
 
 ssh root@47.114.95.173 'systemctl is-active creator-auth'
 ssh root@47.114.95.173 'cd /opt/creator-auth && python3 -m unittest discover -s tests -p "test_*.py"'

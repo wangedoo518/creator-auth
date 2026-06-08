@@ -10,7 +10,7 @@ DEFAULT_TENANTS = [
         "profile": "lufei-creator-profile",
         "displayName": "路飞设计沉思录",
         "gatewayUrl": "https://claudewiki.cn/hermes",
-        "authMode": "ticket",
+        "authMode": "none",
         "features": {
             "chat": True,
             "skills": True,
@@ -24,7 +24,7 @@ DEFAULT_TENANTS = [
         "profile": "career-coach-copilot",
         "displayName": "求职咨询助手",
         "gatewayUrl": "https://claudewiki.cn/hermes",
-        "authMode": "ticket",
+        "authMode": "none",
         "features": {
             "chat": True,
             "skills": True,

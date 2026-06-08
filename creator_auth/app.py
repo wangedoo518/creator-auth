@@ -33,6 +33,9 @@ class CreatorAuthApp:
         if method == "GET" and route == "/health":
             return self.json({"ok": True, "service": "creator-auth", "time": now()})
 
+        if method == "GET" and route == "/workspaces":
+            return self.json(self.public_workspaces())
+
         if method == "POST" and route == "/auth/wechat/desktop/start":
             return self.json(self.start_wechat_login(data))
 
@@ -263,6 +266,28 @@ class CreatorAuthApp:
             (user_id,),
         )
         return [row_to_tenant(row, row["member_role"]) for row in rows]
+
+    def public_workspaces(self):
+        rows = self.db.query_all(
+            """
+            SELECT * FROM tenants
+            WHERE status='active'
+            ORDER BY display_name
+            """
+        )
+        return {
+            "version": 1,
+            "workspaces": [
+                {
+                    "id": row["id"],
+                    "profile": row["profile"],
+                    "displayName": row["display_name"],
+                    "gatewayUrl": row["gateway_url"],
+                    "authMode": row["auth_mode"] or "none",
+                }
+                for row in rows
+            ],
+        }
 
     def gateway_ticket(self, user, tenant_id):
         row = self.db.query_one(
