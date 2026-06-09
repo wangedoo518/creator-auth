@@ -41,8 +41,9 @@ Before production, put the service behind HTTPS, then restrict or close direct
 
 Port 80 on the ECS is already owned by the existing Docker service
 `zrimg-web-1`, which serves an Nginx static web app. System Nginx was installed
-for preparation but left disabled because it cannot bind port 80 while that
-container is active.
+for preparation but cannot bind port 80 while that container is active; the
+current `nginx.service` status is failed and does not affect the direct
+`0.0.0.0:8088` creator-auth service.
 
 Production HTTPS requires one of these choices:
 
@@ -101,21 +102,22 @@ stored only on the remote Hermes dashboard host, not in creator-auth.
 - DNS A records for `yongshengxingda.com` and `www.yongshengxingda.com` pointing
   to `47.114.95.173`.
 - HTTPS certificate and reverse proxy for `https://yongshengxingda.com`.
-- `lufei` Hermes dashboard at `http://124.220.29.171:9119` must run with
-  `HERMES_DASHBOARD_BASIC_AUTH_USERNAME`,
-  `HERMES_DASHBOARD_BASIC_AUTH_PASSWORD_HASH` or `_PASSWORD`, and
-  `HERMES_DASHBOARD_BASIC_AUTH_SECRET`, and must expose the official `/login`,
-  REST, and WebSocket ticket flow over the configured Remote URL.
-- `career-coach` Hermes dashboard at `http://43.143.118.134:9119` must run
-  with the same Basic Auth environment shape for its own profile.
+- `lufei` Hermes dashboard at `http://124.220.29.171:9119` is running on the
+  Tencent host with Basic Auth enabled, but the public Tencent Lighthouse
+  firewall/security group still needs to allow `9119/tcp`.
+- `career-coach` Hermes dashboard at `http://43.143.118.134:9119` has
+  dashboard auth secrets/variables configured in GitHub; it still needs
+  `TENCENT_CVM_SSH_PRIVATE_KEY`, deployment, and public `9119/tcp` access.
 - Public distribution still needs HTTPS or VPN access control for both Remote
   URLs. Direct HTTP on port `9119` is suitable only for trusted-network pilots.
 
-As of 2026-06-09, direct probes to the two Tencent dashboard ports have not
-verified a live Hermes dashboard yet, and SSH access to those machines requires
-the team-owned Tencent keys. End-to-end Desktop sign-in cannot be considered
-complete until both dashboard services are running and `/api/status`,
-`/api/auth/providers`, `/login`, and WebSocket ticket flow are verified.
+As of 2026-06-09, `lufei` has passed server-local `/api/status` and
+`/api/auth/providers` checks with `auth_required=true` and provider `basic`.
+The same check from GitHub runner and from the Tencent host to its own public IP
+still times out, which points to the cloud firewall/security group. End-to-end
+Desktop sign-in cannot be considered complete until both dashboard public
+Remote URLs can reach `/api/status`, `/api/auth/providers`, `/login`, and the
+WebSocket ticket flow.
 
 ## Verification Commands
 
