@@ -14,6 +14,9 @@ This service is intentionally small and dependency-light for the initial CentOS
 - Provides admin APIs to create users, tenants, and memberships.
 
 It does not run Hermes agent tasks. Each tenant still has its own Hermes gateway.
+For the Desktop MVP, `gatewayUrl` points to that tenant's Hermes **dashboard**
+REST/WebSocket endpoint, not to the model provider gateway. `claudewiki.cn/v1`
+is still only the OpenAI-compatible model endpoint used inside each profile.
 
 ## Quick Start
 
@@ -73,9 +76,20 @@ bundled Basic Auth provider:
 HERMES_DASHBOARD_BASIC_AUTH_USERNAME='creator-name'
 HERMES_DASHBOARD_BASIC_AUTH_PASSWORD='change-me'
 HERMES_DASHBOARD_BASIC_AUTH_SECRET='32-plus-random-bytes'
-HERMES_DASHBOARD_PUBLIC_URL='https://claudewiki.cn/hermes'
+HERMES_DASHBOARD_PUBLIC_URL='http://124.220.29.171:9119'
 ```
 
 Use `HERMES_DASHBOARD_BASIC_AUTH_PASSWORD_HASH` instead of plaintext passwords
 for production. Dashboard usernames, passwords, hashes, and secrets must not be
 stored in creator-auth or returned by `GET /workspaces`.
+
+Current trusted-network pilot workspace URLs:
+
+| workspace | profile | dashboard Remote URL |
+| --- | --- | --- |
+| `lufei` | `lufei-creator-profile` | `http://124.220.29.171:9119` |
+| `career-coach` | `career-coach-copilot` | `http://43.143.118.134:9119` |
+
+Before public creator distribution, replace those HTTP URLs with HTTPS domains
+or VPN-only addresses and keep direct `9119` access limited by security group,
+firewall, or VPN policy.

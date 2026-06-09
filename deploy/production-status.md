@@ -1,6 +1,6 @@
 # Production Deployment Status
 
-Last updated: 2026-06-08
+Last updated: 2026-06-09
 
 ## Server
 
@@ -52,7 +52,7 @@ Production HTTPS requires one of these choices:
 
 ## Seeded Tenants
 
-Current seeded tenant records:
+Current seeded tenant records for the workspace picker MVP:
 
 ```json
 [
@@ -60,57 +60,70 @@ Current seeded tenant records:
     "id": "lufei",
     "profile": "lufei-creator-profile",
     "displayName": "路飞设计沉思录",
-    "gatewayUrl": "https://claudewiki.cn/hermes",
+    "gatewayUrl": "http://124.220.29.171:9119",
     "authMode": "oauth"
   },
   {
     "id": "career-coach",
     "profile": "career-coach-copilot",
     "displayName": "求职咨询助手",
-    "gatewayUrl": "https://claudewiki.cn/hermes",
+    "gatewayUrl": "http://43.143.118.134:9119",
     "authMode": "oauth"
   }
 ]
 ```
 
-Both tenants currently share the `claudewiki.cn` Hermes gateway domain. If the
-gateway later exposes tenant-specific paths or subdomains, update the two tenant
-records through the admin API.
+`http://47.114.95.173:8088/workspaces` now returns these records. The URLs are
+the direct Tencent Cloud Hermes dashboard ports for
+trusted-network pilot use. They are intentionally distinct per profile:
+
+- `lufei-creator-profile` runs on Tencent Lighthouse `124.220.29.171`.
+- `career-coach-copilot` runs on Tencent CVM `43.143.118.134`.
+
+The previously used `https://claudewiki.cn/hermes` URL is not a valid workspace
+Remote URL for this MVP: `claudewiki.cn/v1` is the model provider endpoint, and
+the `/hermes` path currently serves another app unless a dedicated Hermes
+dashboard reverse proxy is added later.
 
 ## Workspace + Password Sign-In Desktop Flow
 
 Hermes Creator Desktop now loads `GET /workspaces`, shows a workspace picker,
-saves the workspace as a per-profile remote override with `authMode: "oauth"`,
-then opens the official Hermes gateway sign-in window. For the MVP, each remote
-Hermes dashboard uses the bundled Basic Auth provider, so the window renders a
-username/password form. WeChat login, users, memberships, and gateway tickets
-are not part of the MVP path. Dashboard credentials and auth secrets are stored
-only on the remote Hermes gateway, not in creator-auth.
+saves the selected workspace as a per-profile remote override with
+`authMode: "oauth"`, then opens the official Hermes dashboard sign-in window.
+For the MVP, each remote Hermes dashboard uses the bundled Basic Auth provider,
+so the window renders a username/password form. Users never paste a Session
+Token. WeChat login, creator-auth users, memberships, and custom gateway
+tickets are not part of the MVP path. Dashboard credentials and auth secrets are
+stored only on the remote Hermes dashboard host, not in creator-auth.
 
 ## Pending Production Inputs
 
 - DNS A records for `yongshengxingda.com` and `www.yongshengxingda.com` pointing
   to `47.114.95.173`.
 - HTTPS certificate and reverse proxy for `https://yongshengxingda.com`.
-- Hermes dashboard gateway at `https://claudewiki.cn/hermes` must run with
+- `lufei` Hermes dashboard at `http://124.220.29.171:9119` must run with
   `HERMES_DASHBOARD_BASIC_AUTH_USERNAME`,
   `HERMES_DASHBOARD_BASIC_AUTH_PASSWORD_HASH` or `_PASSWORD`, and
   `HERMES_DASHBOARD_BASIC_AUTH_SECRET`, and must expose the official `/login`,
-  REST, and WebSocket ticket flow over HTTPS.
+  REST, and WebSocket ticket flow over the configured Remote URL.
+- `career-coach` Hermes dashboard at `http://43.143.118.134:9119` must run
+  with the same Basic Auth environment shape for its own profile.
+- Public distribution still needs HTTPS or VPN access control for both Remote
+  URLs. Direct HTTP on port `9119` is suitable only for trusted-network pilots.
 
-As of 2026-06-08, `https://claudewiki.cn/hermes/api/status` and
-`https://claudewiki.cn/hermes/login` return the existing Sub2API web app, not
-Hermes dashboard responses. `claudewiki.cn` resolves to `154.29.156.153`, while
-the creator-auth ECS host is `47.114.95.173`; `yongshengxingda.com` has no DNS A
-record visible from this environment. End-to-end Desktop sign-in cannot be
-considered complete until the Hermes dashboard is routed behind the configured
-gateway URL.
+As of 2026-06-09, direct probes to the two Tencent dashboard ports have not
+verified a live Hermes dashboard yet, and SSH access to those machines requires
+the team-owned Tencent keys. End-to-end Desktop sign-in cannot be considered
+complete until both dashboard services are running and `/api/status`,
+`/api/auth/providers`, `/login`, and WebSocket ticket flow are verified.
 
 ## Verification Commands
 
 ```bash
 curl -fsS http://47.114.95.173:8088/health
 curl -fsS http://47.114.95.173:8088/workspaces
+curl -fsS http://124.220.29.171:9119/api/status
+curl -fsS http://43.143.118.134:9119/api/status
 
 ssh root@47.114.95.173 'systemctl is-active creator-auth'
 ssh root@47.114.95.173 'cd /opt/creator-auth && python3 -m unittest discover -s tests -p "test_*.py"'

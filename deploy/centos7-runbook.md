@@ -178,11 +178,13 @@ python3 scripts/seed_tenants.py
 
 Default production gateway URLs:
 
-- `https://claudewiki.cn/hermes`
-- `https://claudewiki.cn/hermes`
+- `http://124.220.29.171:9119` for `lufei-creator-profile`
+- `http://43.143.118.134:9119` for `career-coach-copilot`
 
-If the two tenants later move to separate gateway paths or subdomains, update
-their tenant records with the admin API and rerun the Desktop smoke tests.
+These are trusted-network pilot URLs for the Tencent Cloud Hermes dashboard
+processes. If the tenants later move to HTTPS domains, VPN addresses, paths, or
+subdomains, update their tenant records with the admin API and rerun the
+Desktop smoke tests.
 
 The public Desktop manifest is available without login:
 
@@ -199,7 +201,7 @@ each remote Hermes dashboard:
 HERMES_DASHBOARD_BASIC_AUTH_USERNAME='creator-name'
 HERMES_DASHBOARD_BASIC_AUTH_PASSWORD_HASH='scrypt$...'
 HERMES_DASHBOARD_BASIC_AUTH_SECRET='32-plus-random-bytes'
-HERMES_DASHBOARD_PUBLIC_URL='https://claudewiki.cn/hermes'
+HERMES_DASHBOARD_PUBLIC_URL='http://124.220.29.171:9119'
 ```
 
 ## 8. Smoke Tests

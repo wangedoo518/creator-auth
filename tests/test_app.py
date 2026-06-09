@@ -56,7 +56,7 @@ class CreatorAuthAppTest(unittest.TestCase):
                 "id": "lufei",
                 "profile": "lufei-creator-profile",
                 "displayName": "路飞设计沉思录",
-                "gatewayUrl": "https://claudewiki.cn/hermes",
+                "gatewayUrl": "http://124.220.29.171:9119",
                 "authMode": "oauth",
             },
         )
@@ -67,7 +67,7 @@ class CreatorAuthAppTest(unittest.TestCase):
         self.assertEqual(payload["version"], 1)
         self.assertEqual(payload["workspaces"][0]["id"], "lufei")
         self.assertEqual(payload["workspaces"][0]["profile"], "lufei-creator-profile")
-        self.assertEqual(payload["workspaces"][0]["gatewayUrl"], "https://claudewiki.cn/hermes")
+        self.assertEqual(payload["workspaces"][0]["gatewayUrl"], "http://124.220.29.171:9119")
         self.assertEqual(payload["workspaces"][0]["authMode"], "oauth")
 
     def test_public_workspaces_default_to_oauth_auth(self):
@@ -80,7 +80,7 @@ class CreatorAuthAppTest(unittest.TestCase):
                 "id": "career-coach",
                 "profile": "career-coach-copilot",
                 "displayName": "求职咨询助手",
-                "gatewayUrl": "https://claudewiki.cn/hermes",
+                "gatewayUrl": "http://43.143.118.134:9119",
             },
         )
 
@@ -99,7 +99,7 @@ class CreatorAuthAppTest(unittest.TestCase):
                 "id": "career-coach",
                 "profile": "career-coach-copilot",
                 "displayName": "求职咨询助手",
-                "gatewayUrl": "https://claudewiki.cn/hermes",
+                "gatewayUrl": "http://43.143.118.134:9119",
                 "features": {"chat": True, "settings": False},
             },
         )
@@ -158,7 +158,7 @@ class CreatorAuthAppTest(unittest.TestCase):
                 "id": "lufei",
                 "profile": "lufei-creator-profile",
                 "displayName": "路飞设计沉思录",
-                "gatewayUrl": "https://claudewiki.cn/hermes",
+                "gatewayUrl": "http://124.220.29.171:9119",
             },
         )
         _, _, login = self.request("POST", "/dev/login", body={"unionId": "other", "openId": "other"})
